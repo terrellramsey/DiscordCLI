@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordCLI", "DiscordCLI\DiscordCLI.csproj", "{E683AF63-D451-4731-81EC-5E26F2FB6328}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DScriptEngine", "DiscordScriptEngine\DScriptEngine.csproj", "{22379B43-04FB-454B-A3DC-B21FDB5B6FA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleUtils", "ConsoleUtils\ConsoleUtils.csproj", "{50642A3F-06E2-4CD5-ACEB-074E04E911A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DCliTest", "DCliTest\DCliTest.csproj", "{B570DD60-157C-4DC0-9836-C03CB9B98731}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E683AF63-D451-4731-81EC-5E26F2FB6328}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E683AF63-D451-4731-81EC-5E26F2FB6328}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E683AF63-D451-4731-81EC-5E26F2FB6328}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E683AF63-D451-4731-81EC-5E26F2FB6328}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22379B43-04FB-454B-A3DC-B21FDB5B6FA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22379B43-04FB-454B-A3DC-B21FDB5B6FA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22379B43-04FB-454B-A3DC-B21FDB5B6FA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22379B43-04FB-454B-A3DC-B21FDB5B6FA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50642A3F-06E2-4CD5-ACEB-074E04E911A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50642A3F-06E2-4CD5-ACEB-074E04E911A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50642A3F-06E2-4CD5-ACEB-074E04E911A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50642A3F-06E2-4CD5-ACEB-074E04E911A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B570DD60-157C-4DC0-9836-C03CB9B98731}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B570DD60-157C-4DC0-9836-C03CB9B98731}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B570DD60-157C-4DC0-9836-C03CB9B98731}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B570DD60-157C-4DC0-9836-C03CB9B98731}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
