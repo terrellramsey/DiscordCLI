@@ -1,10 +1,10 @@
 language: csharp
 mono:
-	- latest
+  - latest
 script:
-	- cd src/DiscordCLI
-	- nuget restore DiscordCLI.sln
-	- xbuild /p:TargetFrameworkVersion="v4.5" /p:Configuration=Release DiscordCLI.sln
+  - cd src/DiscordCLI
+  - nuget restore DiscordCLI.sln
+  - xbuild /p:TargetFrameworkVersion="v4.5" /p:Configuration=Release DiscordCLI.sln
 notifications:
   email:
 	  recipients:
