@@ -4,7 +4,7 @@ mono:
 script:
         - cd src/DiscordCLI
 	    - nuget restore DiscordCLI.sln
-	        - xbuild /p:TargetFrameworkVersion="v4.5" /p:Configuration=Release DiscordCLI.sln
+	    - xbuild /p:TargetFrameworkVersion="v4.5" /p:Configuration=Release DiscordCLI.sln
 notifications:
   email:
       recipients:
