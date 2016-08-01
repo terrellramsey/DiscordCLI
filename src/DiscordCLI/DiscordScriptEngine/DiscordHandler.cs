@@ -1,24 +1,23 @@
-﻿using Discord;
+﻿using System;
+using Discord;
 using DScriptEngine.Enums;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace DScriptEngine {
     internal class DiscordHandler {
         #region Definers
 
         #endregion
+
         #region Connection
-        public void Connect(DiscordClient Client) {
-            Global.client = Client;
-        }
-        public void Connect(string Username, string Password) {
-            Global.client.Connect(Username, Password);
-        }
-        public void Connect(string Token) {
-            Global.client.Connect(Token);
-        }
+
+       
         #endregion
+
+        #region Server
+
         public DResult UseServer(DCommand cmd) {
             var result = new DResult();
             if (!cmd.Parameters.ContainsKey(CommandParameter.Name) && !cmd.Parameters.ContainsKey(CommandParameter.Id)) {
@@ -36,6 +35,7 @@ namespace DScriptEngine {
                 }
                 result.Result = Result.Ok;
                 result.Message = server.Name;
+                return result;
             }
             else {
                 var id = cmd.Parameters[CommandParameter.Id];
@@ -53,9 +53,25 @@ namespace DScriptEngine {
                 }
                 result.Result = Result.Ok;
                 result.Message = server.Name;
+                return result;
             }
+        }
 
-            // var server = Global.client.FindServers()
+        public DResult CreateInvite() {
+            var result = new DResult();
+            if (!ActiveServerSet()) {
+                result.Result = Result.Error;
+                result.Message = MessageStore.NoServerSelected;
+                return result;
+            }
+            var invite = Global.client.GetServer(Global.activeServer.Id).CreateInvite();
+            if (invite == null) {
+                result.Result = Result.Error;
+                result.Message = MessageStore.FailedToCreateInvite;
+                return result;
+            }
+            result.Result = Result.Ok;
+            result.Message = invite.Result.Url;
             return result;
         }
 
@@ -82,7 +98,7 @@ namespace DScriptEngine {
                     return result;
                 }
                 string ext = Path.GetExtension(path);
-                if (ext != "png" && ext != "jpeg") {
+                if (ext != ".png" && ext != ".jpeg") {
                     result.Result = Result.Error;
                     result.Message = MessageStore.WrongImageType;
                     return result;
@@ -90,7 +106,7 @@ namespace DScriptEngine {
                 image = new FileStream(cmd.Parameters[CommandParameter.Image], FileMode.Open);
             }
             var regionPart = utils.GetRegionFromString(cmd.Parameters[CommandParameter.Region]);
-            if (regionPart != ServerRegion.UNKNOWN) {
+            if (regionPart == ServerRegion.UNKNOWN) {
                 result.Result = Result.Error;
                 result.Message = MessageStore.ServerRegionNotFound;
                 return result;
@@ -108,20 +124,233 @@ namespace DScriptEngine {
             image?.Close();
             return result;
         }
-        public DResult CreateTextChannel(DCommand cmd) {
-            var result = new DResult { ExecutedCommand = cmd.Command };
-            Global.client.ExecuteAndWait(async () => {
-                if (Global.activeServer == null) {
+
+        public DResult ShowServer(DCommand cmd) {
+            var result = new DResult();
+            if (!cmd.Parameters.ContainsKey(CommandParameter.Name) && !cmd.Parameters.ContainsKey(CommandParameter.Id)) {
+                result.Result = Result.Error;
+                result.Message = string.Format(MessageStore.MissingParameter, "(Name) or (Id)");
+                return result;
+            }
+            if (cmd.Parameters.ContainsKey(CommandParameter.Name)) {
+                var name = cmd.Parameters[CommandParameter.Name];
+                var server = Global.client.FindServers(name).FirstOrDefault();
+                if (server == null) {
                     result.Result = Result.Error;
-                    result.Message = MessageStore.NoServerSelected;
+                    result.Message = string.Format(MessageStore.ServerNotFound, name);
+                    return result;
                 }
-                var channel = await Global.activeServer.CreateChannel("", ChannelType.Text);
-                if (channel != null) {
-                    result.Result = Result.Ok;
-                    result.Message = string.Format(MessageStore.TextChannelCreated, channel.Name, channel.Server.Name);
+                result.Result = Result.Ok;
+                result.Message = server.Name;
+                return result;
+            }
+            else {
+                var id = cmd.Parameters[CommandParameter.Id];
+                ulong serverId;
+                if (!ulong.TryParse(id, out serverId)) {
+                    result.Result = Result.Error;
+                    result.Message = string.Format(MessageStore.IdNotValid, id);
+                    return result;
                 }
+                var server = Global.client.GetServer(serverId);
+                if (server == null) {
+                    result.Result = Result.Error;
+                    result.Message = string.Format(MessageStore.ServerNotFound, id);
+                    return result;
+                }
+                result.Result = Result.Ok;
+                result.Message = "";
+                return result;
+            }
+        }
+
+        public DResult RemoveServer(DCommand cmd) {
+            var result = new DResult();
+            if (!cmd.Parameters.ContainsKey(CommandParameter.Id)) {
+                result.Result = Result.Error;
+                result.Message = string.Format(MessageStore.MissingParameter, "(Id)");
+                return result;
+            }
+            var id = cmd.Parameters[CommandParameter.Id];
+            ulong serverId;
+            if (!ulong.TryParse(id, out serverId)) {
+                result.Result = Result.Error;
+                result.Message = string.Format(MessageStore.IdNotValid, id);
+                return result;
+            }
+            var server = Global.client.GetServer(serverId);
+            if (!server.IsOwner) {
+                result.Result = Result.Error;
+                result.Message = MessageStore.NotServerOwner;
+                return result;
+            }
+            Global.client.ExecuteAndWait(async () => {
+                await server.Delete();
+                result.Result = Result.Ok;
+                result.Message = string.Format(MessageStore.ServerDeleted,
+                    server.Name);
             });
             return result;
         }
+
+        public DResult EditServer(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        public DResult SaveServer(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region Text Channels
+
+        internal DResult RemoveText(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        internal DResult CreateText(DCommand com) {
+            var result = new DResult();
+            if (!ActiveServerSet()) {
+                result.Result = Result.Error;
+                result.Message = MessageStore.NoServerSelected;
+                return result;
+            }
+            Channel channel = null;
+            Global.client.ExecuteAndWait(async () => {
+                channel = await Global.client.GetServer(Global.activeServer.Id).CreateChannel("", ChannelType.Text);
+            });
+            if (channel == null) {
+                result.Result = Result.Error;
+                result.Message = string.Format(MessageStore.FailedToCreateChannel, "", Global.activeServer.Name);
+                return result;
+            }
+            result.Result = Result.Ok;
+            result.Message = string.Format(MessageStore.TextChannelCreated, channel.Name, channel.Server.Name);
+            return result;
+        }
+
+        internal DResult ShowText(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        //public DResult CreateTextChannel(DCommand cmd) {
+        //    var result = new DResult { ExecutedCommand = cmd.Command };
+        //    if (!cmd.Parameters.ContainsKey(CommandParameter.Name)) {
+        //        result.Result = Result.Error;
+        //        result.Message = string.Format(MessageStore.MissingParameter, "(Name)");
+        //        return result;
+        //    }
+        //    if (Global.activeServer == null) {
+        //        result.Result = Result.Error;
+        //        result.Message = MessageStore.NoServerSelected;
+        //    }
+        //    Global.client.ExecuteAndWait(async () => {
+        //        var channel = await Global.activeServer.CreateChannel("", ChannelType.Text);
+        //        if (channel != null) {
+        //            result.Result = Result.Ok;
+        //            result.Message = string.Format(MessageStore.TextChannelCreated, channel.Name, channel.Server.Name);
+        //        }
+        //    });
+        //    return result;
+        //}
+
+        public DResult EditText(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        public DResult SaveText(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region Voice Channels
+
+        internal DResult EditVoice(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        internal DResult RemoveVoice(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        internal DResult CreateVoice(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        public DResult SaveVoice(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        public DResult ShowVoice(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region Roles
+
+        public DResult CreateRole(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        public DResult EditRole(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        public DResult SaveRole(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        public DResult RemoveRole(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        public DResult ShowRoles(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        #endregion Help
+
+        public DResult ShowHelp(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        #region Users
+
+        public DResult ShowUsers(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        public DResult BanUser(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+
+
+        public DResult KickUser(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+
+
+        public DResult SaveUsers(DCommand com) {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region
+
+        #endregion
+
+        #region Checkers
+
+        private bool ActiveServerSet() {
+            return Global.activeServer != null;
+        }
+
+        #endregion
     }
 }

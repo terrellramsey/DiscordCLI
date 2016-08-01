@@ -4,10 +4,21 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Discord;
 
 namespace DScriptEngine {
     public class ScriptFactory {
-        private List<DCommand> _commands { get; set; }
+
+        public ScriptFactory(DiscordClient client) {
+            if (client == null) {
+                throw new NullReferenceException("DiscordClient can not be null");
+            }
+            if (client.GatewaySocket.State == ConnectionState.Disconnected) {
+                throw new ServerException("DiscordClient not connected");
+            }
+            Global.client = client;
+        }
+        private List<DCommand> Commands { get; set; }
         public void LoadScript(string path) {
             var util = new StringUtils();
             var parser = new CommandParser();
@@ -20,28 +31,29 @@ namespace DScriptEngine {
                 return;
             }
             var script = File.ReadAllLines(path);
-            _commands = new List<DCommand>();
-            foreach (string line in script) {
-                if (!line.StartsWith("//")) {
-                    var cmd = new DCommand();
-                    cmd.Command = util.GetCommandFromString(line.Split(' ')[0]);
-                    cmd.Parameters = parser.GetCommandParameters(line);
-                    _commands.Add(cmd);
-                }
+            Commands = new List<DCommand>();
+            foreach (var line in script) {
+                if (line.StartsWith("//")) continue;
+                var cmd = new DCommand
+                {
+                    Command = util.GetCommandFromString(line.Split(' ')[0]),
+                    Parameters = parser.GetCommandParameters(line)
+                };
+                Commands.Add(cmd);
             }
-            if(!_commands.Any()) {
+            if (!Commands.Any()) {
                 Logger.Log(string.Format(MessageStore.EmptyScriptFile, path), LogLevel.Error);
             }
-            Logger.Log($"Loaded {_commands.Count} commands");
+            Logger.Log($"Loaded {Commands.Count} commands");
             RunScript();
         }
         public void RunScript() {
-            if(_commands == null) {
+            if (Commands == null) {
                 return;
             }
-            foreach(var cmd in _commands) {
+            foreach (var cmd in Commands) {
                 Logger.Log(string.Format(MessageStore.RunningCommand, cmd.Command));
-                var engine = new ScriptEngine(new Discord.DiscordClient());
+                var engine = new ScriptEngine(null);
                 engine.Run(cmd);
             }
         }

@@ -13,5 +13,9 @@
         public static string EmptyScriptFile = "No commands found in {0}";
         public static string RunningCommand = "Running {0}";
         public static string CommandNotFound = "The command {0} was not found";
+        public static string FailedToCreateInvite = "Failed to create invite";
+        public static string NotServerOwner = "You need to be the owner of the server to perform this action";
+        public static string ServerDeleted = "The server {0} was deleted.";
+        public static string FailedToCreateChannel = "Failed to create the channel {0} on {1}";
     }
 }

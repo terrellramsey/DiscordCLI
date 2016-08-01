@@ -77,6 +77,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="DiscordConnector.cs" />
+    <Compile Include="DScriptEngine\HookHandler.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,23 +1,20 @@
-﻿using Discord;
+﻿using System;
+using Discord;
 
 namespace DScriptEngine {
     public class ScriptEngine {
-        #region Init
-        public ScriptEngine(DiscordClient client)
-        {
+        public ScriptEngine(DiscordClient client) {
+            if (client == null) {
+                throw new NullReferenceException("DiscordClient can not be null");
+            }
+            if (client.GatewaySocket.State == ConnectionState.Disconnected) {
+                throw new ServerException("DiscordClient not connected");
+            }
             Global.client = client;
-            //   _parameters = GetCommandParameters(Command);
         }
-        public ScriptEngine(string Username, string Password, DiscordClient client) {
-            // _parameters = GetCommandParameters(Command);
-        }
-        public ScriptEngine(string Token, DiscordClient client) {
-            // _parameters = GetCommandParameters(Command);
-        }
-        #endregion
         #region Server Management
         public void Run(string input) {
-            var handler = new DScriptEngine.CommandHandler();
+            var handler = new CommandHandler();
             handler.Process(input);
         }
         internal void Run(DCommand command) {
