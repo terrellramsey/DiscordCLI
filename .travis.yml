@@ -2,12 +2,6 @@ language: csharp
 mono:
     - latest
 script:
-    - cd src/DiscordCLI
-	- cd restore DiscordCLI.sln
-	- xbuild /p:TargetFrameworkVersion="v4.5" /p:Configuration=Release DBSharp.sln
-notifications:
-  email:
-    recipients:
-      - me@d3v.no
-    on_success: change
-    on_failure: always
+    - cd src\DiscordCLI
+    - nuget restore DiscordCLI.sln
+    - xbuild /p:TargetFrameworkVersion="v4.5" /p:Configuration=Release DiscordCLI.sln
