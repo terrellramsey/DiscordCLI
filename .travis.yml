@@ -2,6 +2,6 @@ language: csharp
 mono:
     - latest
 script:
-    - cd src\DiscordCLI
+    - cd src/DiscordCLI
     - nuget restore DiscordCLI.sln
     - xbuild /p:TargetFrameworkVersion="v4.5" /p:Configuration=Release DiscordCLI.sln
