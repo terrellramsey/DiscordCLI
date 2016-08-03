@@ -32,8 +32,6 @@ namespace DScriptEngine {
             }
             set { _param = value; }
         }
-        public ICommand getCommand() {
-            throw new NotImplementedException();
-        }
+       
     }
 }

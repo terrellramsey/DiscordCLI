@@ -68,11 +68,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandHandler.cs" />
-    <Compile Include="CommandParser.cs" />
+    <Compile Include="Commands\CommandHandler.cs" />
+    <Compile Include="Commands\CommandParser.cs" />
     <Compile Include="DiscordHandler.cs" />
+    <Compile Include="Ent\DArray.cs" />
     <Compile Include="Ent\DCommand.cs" />
+    <Compile Include="Ent\DInt.cs" />
     <Compile Include="Ent\DResult.cs" />
+    <Compile Include="Ent\DString.cs" />
     <Compile Include="Enums\CommandParameter.cs" />
     <Compile Include="Enums\LogLevel.cs" />
     <Compile Include="Enums\Result.cs" />
@@ -81,16 +84,17 @@
     <Compile Include="Helper\GetHelp.cs" />
     <Compile Include="Helper\TableWriter.cs" />
     <Compile Include="Interfaces\ICommand.cs" />
+    <Compile Include="Interfaces\IVariable.cs" />
     <Compile Include="Logger.cs" />
-    <Compile Include="MessageStore.cs" />
+    <Compile Include="Helper\MessageStore.cs" />
     <Compile Include="Exceptions\ParameterException.cs" />
-    <Compile Include="ScriptEngine.cs" />
+    <Compile Include="Scripting\ScriptEngine.cs" />
     <Compile Include="Enums\Commands.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScriptFactory.cs" />
+    <Compile Include="Scripting\ScriptFactory.cs" />
     <Compile Include="Exceptions\ServerException.cs" />
     <Compile Include="Exceptions\StringExtensions.cs" />
-    <Compile Include="StringUtils.cs" />
+    <Compile Include="Helper\StringUtils.cs" />
     <Compile Include="Syntax\SyntaxCommand.cs" />
     <Compile Include="Syntax\SyntaxSettings.cs" />
   </ItemGroup>

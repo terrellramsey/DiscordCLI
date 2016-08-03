@@ -13,7 +13,7 @@ namespace DScriptEngine {
 
         #region Connection
 
-       
+
         #endregion
 
         #region Server
@@ -35,6 +35,7 @@ namespace DScriptEngine {
                 }
                 result.Result = Result.Ok;
                 result.Message = server.Name;
+                Global.activeServer = server;
                 return result;
             }
             else {
@@ -53,6 +54,7 @@ namespace DScriptEngine {
                 }
                 result.Result = Result.Ok;
                 result.Message = server.Name;
+                Global.activeServer = server;
                 return result;
             }
         }
@@ -104,6 +106,7 @@ namespace DScriptEngine {
                     return result;
                 }
                 image = new FileStream(cmd.Parameters[CommandParameter.Image], FileMode.Open);
+                type = (ImageType)Enum.Parse(typeof(ImageType), Path.GetExtension(path).Substring(1));
             }
             var regionPart = utils.GetRegionFromString(cmd.Parameters[CommandParameter.Region]);
             if (regionPart == ServerRegion.UNKNOWN) {
@@ -127,6 +130,7 @@ namespace DScriptEngine {
 
         public DResult ShowServer(DCommand cmd) {
             var result = new DResult();
+            Server server = null;
             if (!cmd.Parameters.ContainsKey(CommandParameter.Name) && !cmd.Parameters.ContainsKey(CommandParameter.Id)) {
                 result.Result = Result.Error;
                 result.Message = string.Format(MessageStore.MissingParameter, "(Name) or (Id)");
@@ -134,15 +138,12 @@ namespace DScriptEngine {
             }
             if (cmd.Parameters.ContainsKey(CommandParameter.Name)) {
                 var name = cmd.Parameters[CommandParameter.Name];
-                var server = Global.client.FindServers(name).FirstOrDefault();
+                server = Global.client.FindServers(name).FirstOrDefault();
                 if (server == null) {
                     result.Result = Result.Error;
                     result.Message = string.Format(MessageStore.ServerNotFound, name);
                     return result;
                 }
-                result.Result = Result.Ok;
-                result.Message = server.Name;
-                return result;
             }
             else {
                 var id = cmd.Parameters[CommandParameter.Id];
@@ -152,16 +153,24 @@ namespace DScriptEngine {
                     result.Message = string.Format(MessageStore.IdNotValid, id);
                     return result;
                 }
-                var server = Global.client.GetServer(serverId);
+                server = Global.client.GetServer(serverId);
                 if (server == null) {
                     result.Result = Result.Error;
                     result.Message = string.Format(MessageStore.ServerNotFound, id);
                     return result;
                 }
-                result.Result = Result.Ok;
-                result.Message = "";
-                return result;
             }
+            if(server == null) {
+                result.Result = Result.Error;
+                result.Message = MessageStore.ServerNotFound;
+            }
+            var table = new TableWriter("Name", "Info");
+            table.AddRow("Name", server.Name);
+            table.AddRow("Id", server.Id);
+            table.AddRow("Members", server.Users.Count());
+            result.Result = Result.Ok;
+            result.Message = Environment.NewLine +  table.WriteToString();
+            return result;
         }
 
         public DResult RemoveServer(DCommand cmd) {
@@ -193,8 +202,97 @@ namespace DScriptEngine {
             return result;
         }
 
-        public DResult EditServer(DCommand com) {
-            throw new NotImplementedException();
+        public DResult EditServer(DCommand cmd) {
+            var result = new DResult();
+            var type = ImageType.None;
+            var utils = new StringUtils();
+            Stream image = null;
+            string newName = null;
+            string sregion = null;
+
+            if (!cmd.Parameters.ContainsKey(CommandParameter.Name) && !cmd.Parameters.ContainsKey(CommandParameter.Id)) {
+                result.Result = Result.Error;
+                result.Message = string.Format(MessageStore.MissingParameter, "(Name) or (Id)");
+                return result;
+            }
+            if (cmd.Parameters.ContainsKey(CommandParameter.Image)) {
+                var path = cmd.Parameters[CommandParameter.Image];
+                if (!File.Exists(path)) {
+                    result.Result = Result.Error;
+                    result.Message = string.Format(MessageStore.FileNotFound, path);
+                    return result;
+                }
+                string ext = Path.GetExtension(path);
+                if (ext != ".png" && ext != ".jpeg") {
+                    result.Result = Result.Error;
+                    result.Message = MessageStore.WrongImageType;
+                    return result;
+                }
+                image = new FileStream(cmd.Parameters[CommandParameter.Image], FileMode.Open);
+                type = (ImageType)Enum.Parse(typeof(ImageType), Path.GetExtension(path).Substring(1));
+            }
+            if (cmd.Parameters.ContainsKey(CommandParameter.NewName)) {
+                newName = cmd.Parameters[CommandParameter.NewName];
+            }
+            if (cmd.Parameters.ContainsKey(CommandParameter.Region)) {
+                var regionPart = utils.GetRegionFromString(cmd.Parameters[CommandParameter.Region]);
+                if (regionPart == ServerRegion.UNKNOWN) {
+                    result.Result = Result.Error;
+                    result.Message = MessageStore.ServerRegionNotFound;
+                    return result;
+                }
+                sregion = cmd.Parameters[CommandParameter.Region];
+            }
+            if (cmd.Parameters.ContainsKey(CommandParameter.Name)) {
+                var name = cmd.Parameters[CommandParameter.Name];
+                var server = Global.client.FindServers(name).FirstOrDefault();
+                if (server == null) {
+                    result.Result = Result.Error;
+                    result.Message = string.Format(MessageStore.ServerNotFound, name);
+                    return result;
+                }
+                if (newName != string.Empty) {
+                    Global.client.ExecuteAndWait(async () => {
+                        await server.Edit(newName, sregion, image, type);
+                    });
+                }
+                else {
+                    Global.client.ExecuteAndWait(async () => {
+                        await server.Edit(name, sregion, image, type);
+                    });
+                }
+                result.Result = Result.Ok;
+                result.Message = string.Format(MessageStore.ServerUpdated, server.Name);
+                return result;
+            }
+            else {
+                var id = cmd.Parameters[CommandParameter.Id];
+                ulong serverId;
+                if (!ulong.TryParse(id, out serverId)) {
+                    result.Result = Result.Error;
+                    result.Message = string.Format(MessageStore.IdNotValid, id);
+                    return result;
+                }
+                var server = Global.client.GetServer(serverId);
+                if (server == null) {
+                    result.Result = Result.Error;
+                    result.Message = string.Format(MessageStore.ServerNotFound, id);
+                    return result;
+                }
+                if (newName != string.Empty) {
+                    Global.client.ExecuteAndWait(async () => {
+                        await server.Edit(newName, sregion, image, type);
+                    });
+                }
+                else {
+                    Global.client.ExecuteAndWait(async () => {
+                        await server.Edit(server.Name, sregion, image, type);
+                    });
+                }
+                result.Result = Result.Ok;
+                result.Message = string.Format(MessageStore.ServerUpdated, server.Name);
+                return result;
+            }
         }
 
         public DResult SaveServer(DCommand com) {
@@ -209,20 +307,26 @@ namespace DScriptEngine {
             throw new NotImplementedException();
         }
 
-        internal DResult CreateText(DCommand com) {
+        internal DResult CreateText(DCommand cmd) {
             var result = new DResult();
             if (!ActiveServerSet()) {
                 result.Result = Result.Error;
                 result.Message = MessageStore.NoServerSelected;
                 return result;
             }
+            if (!cmd.Parameters.ContainsKey(CommandParameter.Name)) {
+                result.Result = Result.Error;
+                result.Message = string.Format(MessageStore.MissingParameter, "(Name)");
+                return result;
+            }
+            var name = cmd.Parameters[CommandParameter.Name];
             Channel channel = null;
             Global.client.ExecuteAndWait(async () => {
-                channel = await Global.client.GetServer(Global.activeServer.Id).CreateChannel("", ChannelType.Text);
+                channel = await Global.client.GetServer(Global.activeServer.Id).CreateChannel(name, ChannelType.Text);
             });
             if (channel == null) {
                 result.Result = Result.Error;
-                result.Message = string.Format(MessageStore.FailedToCreateChannel, "", Global.activeServer.Name);
+                result.Message = string.Format(MessageStore.FailedToCreateChannel, name, Global.activeServer.Name);
                 return result;
             }
             result.Result = Result.Ok;

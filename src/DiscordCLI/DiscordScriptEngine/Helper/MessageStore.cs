@@ -17,5 +17,6 @@
         public static string NotServerOwner = "You need to be the owner of the server to perform this action";
         public static string ServerDeleted = "The server {0} was deleted.";
         public static string FailedToCreateChannel = "Failed to create the channel {0} on {1}";
+        public static string ServerUpdated = "The server {0} was updated";
     }
 }

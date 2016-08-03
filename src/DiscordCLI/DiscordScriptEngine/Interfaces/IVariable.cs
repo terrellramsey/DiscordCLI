@@ -5,7 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace DScriptEngine {
-    interface ICommand {
-        //ICommand getCommand();
+    public interface IVariable {
+        //void SetValue(string input);
+        //void SetValue(int input);
+        //void SetValue(string[] input);
     }
 }

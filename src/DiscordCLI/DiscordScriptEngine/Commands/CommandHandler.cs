@@ -30,9 +30,9 @@ namespace DScriptEngine {
             Logger.Log(string.Format(MessageStore.RunningCommand, com.Command));
             switch (com.Command) {
                 case Command.UseServer:
-                    var res = dHandler.UseServer(com);
-                    if (res.Result == Result.Ok) {
-                        SyntaxSettings.ConsoleKey = SyntaxSettings.ConsoleOriginalKey + $"({res.Message}) > ";
+             result = dHandler.UseServer(com);
+                    if (result.Result == Result.Ok) {
+                        SyntaxSettings.ConsoleKey = SyntaxSettings.ConsoleOriginalKey + $"({result.Message}) > ";
                     }
                     break;
                 case Command.CreateServer:
@@ -87,7 +87,7 @@ namespace DScriptEngine {
                     result = dHandler.SaveVoice(com);
                     break;
                 case Command.ShowUsers:
-                    result = dHandler?.ShowUsers(com);
+                    result = dHandler.ShowUsers(com);
                     break;
                 case Command.BanUser:
                     result = dHandler.BanUser(com);
