@@ -3,7 +3,6 @@
         public enum Command {
             //Helpers 
             ShowHelp,
-            RunScript,
             //Server Commands
             UseServer,
             ShowServer,
@@ -35,7 +34,11 @@
             RemoveRole,
             EditRole,
             SaveRole,
+            //Scripting
+            LoadScript,
+            //Default
             Error,
+
         }
     }
 }

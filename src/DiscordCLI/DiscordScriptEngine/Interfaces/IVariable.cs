@@ -9,5 +9,7 @@ namespace DScriptEngine {
         //void SetValue(string input);
         //void SetValue(int input);
         //void SetValue(string[] input);
+        string GetName();
+        dynamic GetValue();
     }
 }

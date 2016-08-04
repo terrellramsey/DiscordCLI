@@ -18,5 +18,9 @@
         public static string ServerDeleted = "The server {0} was deleted.";
         public static string FailedToCreateChannel = "Failed to create the channel {0} on {1}";
         public static string ServerUpdated = "The server {0} was updated";
+        public static string VariableDefined = "The variable {0} is already defined";
+        public static string ClientNotSet = "DiscordClient can not be null";
+        public static string ClientNotConnected = "DiscordClient not connected";
+        public static string LoadedVariable = "Loaded the variable {0} of type {1}";
     }
 }

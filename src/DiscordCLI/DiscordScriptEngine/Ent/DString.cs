@@ -12,7 +12,12 @@ namespace DScriptEngine {
             this.name = name;
             this.value = value;
         }
-        public string Name => name;
-        public string Value => value;
+        public string GetName() {
+            return name;
+        }
+
+        public dynamic GetValue() {
+            return value;
+        }
     }
 }

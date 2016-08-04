@@ -2,20 +2,17 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Discord;
-using RestSharp.Extensions;
 
 namespace DScriptEngine {
     public class ScriptFactory {
 
         public ScriptFactory(DiscordClient client) {
             if (client == null) {
-                throw new NullReferenceException("DiscordClient can not be null");
+                throw new NullReferenceException(MessageStore.ClientNotSet);
             }
             if (client.GatewaySocket.State == ConnectionState.Disconnected) {
-                throw new ServerException("DiscordClient not connected");
+                throw new ServerException(MessageStore.ClientNotConnected);
             }
             Global.client = client;
         }
@@ -37,18 +34,24 @@ namespace DScriptEngine {
             Commands = new List<DCommand>();
             foreach (var line in script) {
                 if (line.StartsWith("//")) continue;
-                if (line.StartsWith("svar") || line.StartsWith("ivar") || line.StartsWith("arr(")) {
+                if (line.StartsWith("svar") || line.StartsWith("ivar") || line.StartsWith("arr") || line.StartsWith("lvar")) {
+                    if (Variables == null) { Variables = new Dictionary<string, IVariable>(); }
                     //TODO: Cast value to value.
                     var vari = LoadVariable(line);
                     if (vari != null) {
-                        //TODO: Fix this
-                        Variables.Add("", vari);
+                        var name = vari.GetName();
+                        var variType = vari.GetType();
+                        if (Variables.ContainsKey(name)) {
+                            throw new Exception(string.Format(MessageStore.VariableDefined, name));
+                        }
+                        Variables.Add(vari.GetName(), vari);
+                        Logger.Log(string.Format(MessageStore.LoadedVariable, name, variType));
                     }
                     continue;
                 }
                 var cmd = new DCommand {
                     Command = util.GetCommandFromString(line.Split(' ')[0]),
-                    Parameters = parser.GetCommandParameters(line)
+                    Parameters = parser.GetCommandParameters(line, Variables)
                 };
                 Commands.Add(cmd);
             }
@@ -68,7 +71,6 @@ namespace DScriptEngine {
             }
         }
         public IVariable LoadVariable(string input) {
-            var replacedText = string.Empty;
             IVariable thing = null;
             if (input.StartsWith("svar")) {
                 //TODO: Check for null...
@@ -88,14 +90,27 @@ namespace DScriptEngine {
                     throw new FormatException("The value is not an integer");
                 }
             }
-            else if (input.StartsWith("arr(") && input.EndsWith(")")) {
+            else if (input.StartsWith("arr")) {
                 //TODO: Fix the stuff here!
-                var value1 = input.RemoveFirst("arr(");
-                var value = value1.TrimEnd(')');
+                var value = input.RemoveFirst("arr ");
                 var parts = value.Split(' ');
-                var array = parts[1].Split(',');
+                var rawarray = parts[1].RemoveFirst("(").TrimEnd(')');
+                var array = rawarray.Split(',');
+                //var parts = value.Split(' ');
+                //var value = value1.TrimEnd(')');
                 if (array.Length != 0) {
                     thing = new DArray(parts[0], array);
+                }
+            }
+            else if(input.StartsWith("lvar")) {
+                var removeType = input.RemoveFirst("lvar ");
+                var parts = removeType.Split(' ');
+                ulong outInt;
+                if (ulong.TryParse(parts[1], out outInt)) {
+                    thing = new DULong(parts[0], outInt);
+                }
+                else {
+                    throw new FormatException("The value is not an of type ulong");
                 }
             }
             return thing;

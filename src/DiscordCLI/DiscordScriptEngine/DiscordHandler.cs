@@ -111,7 +111,7 @@ namespace DScriptEngine {
             var regionPart = utils.GetRegionFromString(cmd.Parameters[CommandParameter.Region]);
             if (regionPart == ServerRegion.UNKNOWN) {
                 result.Result = Result.Error;
-                result.Message = MessageStore.ServerRegionNotFound;
+                result.Message = "The server region was not found";
                 return result;
             }
             var serverRegion = Global.client.Regions.FirstOrDefault(t => t.Name == regionPart.ToString());
@@ -238,7 +238,7 @@ namespace DScriptEngine {
                 var regionPart = utils.GetRegionFromString(cmd.Parameters[CommandParameter.Region]);
                 if (regionPart == ServerRegion.UNKNOWN) {
                     result.Result = Result.Error;
-                    result.Message = MessageStore.ServerRegionNotFound;
+                    result.Message = "The server region was not found";
                     return result;
                 }
                 sregion = cmd.Parameters[CommandParameter.Region];
@@ -418,7 +418,7 @@ namespace DScriptEngine {
         #endregion Help
 
         public DResult ShowHelp(DCommand com) {
-            throw new NotImplementedException();
+           throw new NotImplementedException();
         }
 
         #region Users

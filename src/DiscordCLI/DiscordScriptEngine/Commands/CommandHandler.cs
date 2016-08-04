@@ -27,6 +27,7 @@ namespace DScriptEngine {
         private void Execute(DCommand com) {
             var dHandler = new DiscordHandler();
             var result = new DResult();
+            result.ExecutedCommand = com.Command;
             Logger.Log(string.Format(MessageStore.RunningCommand, com.Command));
             switch (com.Command) {
                 case Command.UseServer:

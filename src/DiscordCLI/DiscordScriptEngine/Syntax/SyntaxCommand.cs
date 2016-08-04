@@ -43,6 +43,8 @@ namespace DScriptEngine.Syntax {
             "Remove-Role",
             "Edit-Role",
             "Save-Role",
+            //Scripting
+            "Load-Script",
         };
         #region Server
         public static List<string> ServerParameters = new List<string>()
