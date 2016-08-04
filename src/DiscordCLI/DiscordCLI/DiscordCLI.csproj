@@ -33,8 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Config.NET">
-      <HintPath>..\..\..\..\..\Factory .NET\Config.NET\Config.NET\bin\Debug\Config.NET.dll</HintPath>
+    <Reference Include="Config.NET, Version=0.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ConfigNET.0.0.0.1\lib\net452\Config.NET.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Discord.Net, Version=0.9.4.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Discord.Net.0.9.4\lib\net45\Discord.Net.dll</HintPath>
@@ -77,7 +78,6 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="DiscordConnector.cs" />
-    <Compile Include="DScriptEngine\HookHandler.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

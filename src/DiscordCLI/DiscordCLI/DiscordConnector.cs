@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace DiscordCLI {
     public class DiscordConnector {
         private DiscordClient _client;
-       private HookHandler _hooker = new HookHandler();
+       //private HookHandler _hooker = new HookHandler();
 
         public void Start() {
             _client = new DiscordClient();
@@ -32,7 +32,7 @@ namespace DiscordCLI {
         }
 
         private void _client_ChannelCreated(object sender, ChannelEventArgs e) {
-            _hooker.Trigger("ChannelCreated", e);
+           // _hooker.Trigger("ChannelCreated", e);
         }
     }
 }
