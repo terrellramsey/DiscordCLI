@@ -76,6 +76,7 @@
     <Compile Include="Ent\DInt.cs" />
     <Compile Include="Ent\DResult.cs" />
     <Compile Include="Ent\DString.cs" />
+    <Compile Include="Ent\DULong.cs" />
     <Compile Include="Enums\CommandParameter.cs" />
     <Compile Include="Enums\LogLevel.cs" />
     <Compile Include="Enums\Result.cs" />
