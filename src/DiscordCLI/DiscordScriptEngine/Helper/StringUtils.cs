@@ -13,7 +13,8 @@ namespace DScriptEngine {
             }
             catch (ArgumentException ex) {
                 cmd = Command.Error;
-                Logger.Log(ex.Message, LogLevel.Error);
+                Global.logger.Log(NLog.LogLevel.Fatal, ex.Message);
+                //Logger.Log(ex.Message, LogLevel.Error);
             }
             return cmd;
         }
@@ -27,7 +28,8 @@ namespace DScriptEngine {
             }
             catch (ArgumentException ex) {
                 reg = ServerRegion.UNKNOWN;
-                Logger.Log(ex.Message, LogLevel.Error);
+                Global.logger.Log(NLog.LogLevel.Fatal, ex.Message);
+                //Logger.Log(ex.Message, LogLevel.Error);
             }
             return reg;
         }
@@ -42,7 +44,8 @@ namespace DScriptEngine {
             }
             catch (ArgumentException ex) {
                 param = CommandParameter.Unknown;
-                Logger.Log(ex.Message, LogLevel.Error);
+                //Logger.Log(ex.Message, LogLevel.Error);
+                Global.logger.Log(NLog.LogLevel.Fatal, ex.Message);
             }
             return param;
         }

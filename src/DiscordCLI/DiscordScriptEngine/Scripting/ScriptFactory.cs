@@ -23,21 +23,25 @@ namespace DScriptEngine {
             var util = new StringUtils();
             var parser = new CommandParser();
             if (!File.Exists(stippedPath)) {
-                Logger.Log(string.Format(MessageStore.FileNotFound, stippedPath));
+                //   Logger.Log(string.Format(MessageStore.FileNotFound, stippedPath));
+                Global.logger.Log(NLog.LogLevel.Error, string.Format(MessageStore.FileNotFound, stippedPath));
                 return;
             }
             if (Path.GetExtension(path) != ".dscript") {
-                Logger.Log(string.Format(MessageStore.FileFormatNotValid, stippedPath));
+                Global.logger.Log(NLog.LogLevel.Error, string.Format(MessageStore.FileFormatNotValid, stippedPath));
+                //Logger.Log(string.Format(MessageStore.FileFormatNotValid, stippedPath));
                 return;
             }
             var script = File.ReadAllLines(stippedPath);
             Commands = new List<DCommand>();
             foreach (var line in script) {
-                if (line.StartsWith("//")) continue;
-                if (line.StartsWith("svar") || line.StartsWith("ivar") || line.StartsWith("arr") || line.StartsWith("lvar")) {
+                var trimmedLine = line.TrimStart();
+
+                if (trimmedLine.StartsWith("//") || trimmedLine.StartsWith("#") || string.IsNullOrEmpty(trimmedLine) || string.IsNullOrWhiteSpace(trimmedLine)) continue;
+                if (trimmedLine.StartsWith("svar") || trimmedLine.StartsWith("ivar") || trimmedLine.StartsWith("arr") || trimmedLine.StartsWith("lvar")) {
                     if (Variables == null) { Variables = new Dictionary<string, IVariable>(); }
                     //TODO: Cast value to value.
-                    var vari = LoadVariable(line);
+                    var vari = LoadVariable(trimmedLine);
                     if (vari != null) {
                         var name = vari.GetName();
                         var variType = vari.GetType();
@@ -45,20 +49,23 @@ namespace DScriptEngine {
                             throw new Exception(string.Format(MessageStore.VariableDefined, name));
                         }
                         Variables.Add(vari.GetName(), vari);
-                        Logger.Log(string.Format(MessageStore.LoadedVariable, name, variType));
+                        Global.logger.Log(NLog.LogLevel.Info, string.Format(MessageStore.LoadedVariable, name, variType));
+                        //Logger.Log(string.Format(MessageStore.LoadedVariable, name, variType));
                     }
                     continue;
                 }
                 var cmd = new DCommand {
-                    Command = util.GetCommandFromString(line.Split(' ')[0]),
-                    Parameters = parser.GetCommandParameters(line, Variables)
+                    Command = util.GetCommandFromString(trimmedLine.Split(' ')[0]),
+                    Parameters = parser.GetCommandParameters(trimmedLine, Variables)
                 };
                 Commands.Add(cmd);
             }
             if (!Commands.Any()) {
-                Logger.Log(string.Format(MessageStore.EmptyScriptFile, path), LogLevel.Error);
+                Global.logger.Log(NLog.LogLevel.Error, string.Format(MessageStore.EmptyScriptFile, path));
+                //Logger.Log(string.Format(MessageStore.EmptyScriptFile, path), LogLevel.Error);
             }
-            Logger.Log($"Loaded {Commands.Count} commands");
+            Global.logger.Log(NLog.LogLevel.Info, $"Loaded {Commands.Count} commands");
+            //Logger.Log($"Loaded {Commands.Count} commands");
             RunScript();
         }
         public void RunScript() {
@@ -102,7 +109,7 @@ namespace DScriptEngine {
                     thing = new DArray(parts[0], array);
                 }
             }
-            else if(input.StartsWith("lvar")) {
+            else if (input.StartsWith("lvar")) {
                 var removeType = input.RemoveFirst("lvar ");
                 var parts = removeType.Split(' ');
                 ulong outInt;

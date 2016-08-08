@@ -12,6 +12,11 @@ namespace DScriptEngine {
         Image,
         NewName,
         Output,
+        Role,
+        Color,
+        RemoveRole,
+        SetRole,
+        Permissions,
 
         Unknown
     }

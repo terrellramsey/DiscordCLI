@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using DScriptEngine.Enums;
+using NLog;
 using static DScriptEngine.Commands;
 
 namespace DScriptEngine {
@@ -13,7 +14,8 @@ namespace DScriptEngine {
             var com = new DCommand();
             var cmd = utils.GetCommandFromString(args[0]);
             if (cmd == Command.Error) {
-                Console.WriteLine($"{args[0]} not found. Use Show-Help for commands");
+                //Logger.Log($"{args[0]} not found. Use Show-Help for commands", LogLevel.Error);
+                Global.logger.Log(NLog.LogLevel.Error, $"{args[0]} not found. Use Show-Help for commands");
                 return;
             }
             com.Command = cmd;
@@ -26,15 +28,17 @@ namespace DScriptEngine {
         }
         private void Execute(DCommand com) {
             var dHandler = new DiscordHandler();
-            var result = new DResult();
-            result.ExecutedCommand = com.Command;
-            Logger.Log(string.Format(MessageStore.RunningCommand, com.Command));
+            //Logger.OnLoggedMessage += (sender, e) => {
+            //    if (e.Result.ExecutedCommand == Command.UseServer && e.Result.Result == Result.Ok) {
+            //        SyntaxSettings.ConsoleKey = SyntaxSettings.ConsoleOriginalKey + $"({e.Result.Message}) > ";
+            //    }
+            //    Logger.LogResult(e.Result);
+            //};
+            var result = new DResult {ExecutedCommand = com.Command};
+            Global.logger.Log(NLog.LogLevel.Info, string.Format(MessageStore.RunningCommand, com.Command));
             switch (com.Command) {
                 case Command.UseServer:
-             result = dHandler.UseServer(com);
-                    if (result.Result == Result.Ok) {
-                        SyntaxSettings.ConsoleKey = SyntaxSettings.ConsoleOriginalKey + $"({result.Message}) > ";
-                    }
+                    dHandler.UseServer(com);
                     break;
                 case Command.CreateServer:
                     result = dHandler.CreateServer(com);
@@ -115,10 +119,11 @@ namespace DScriptEngine {
                     result = dHandler.SaveRole(com);
                     break;
                 default:
-                    Logger.Log(string.Format(MessageStore.CommandNotFound, com.Command), LogLevel.Error);
+                    Global.logger.Log(NLog.LogLevel.Error, string.Format(MessageStore.CommandNotFound, com.Command));
                     break;
             }
-            Logger.LogResult(result);
+            //Logger.LogResult(result);
+            Global.logger.Log(NLog.LogLevel.Info, result.Message);
         }
     }
 

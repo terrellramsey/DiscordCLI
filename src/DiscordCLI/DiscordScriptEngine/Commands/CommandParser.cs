@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,12 +17,15 @@ namespace DScriptEngine {
             var param = rawParam.Split('-');
             for (var i = 1; i < param.Length; i++) {
                 var par = param[i].Split('"');
-                if (variables == null) {
-                    paramDict.Add(utils.GetCommandParameter(par[0]), par[1]);
+                var parameter = utils.GetCommandParameter(par[0]);
+                if (parameter == CommandParameter.Unknown)
+                {
+                    Global.logger.Log(NLog.LogLevel.Fatal, "Error getting the parameter");
+                    //throw new Exception("Error getting the parameter");
+                    break;
                 }
-                else {
-                    paramDict.Add(utils.GetCommandParameter(par[0]), CheckForVariable(par[1], variables));
-                }
+                paramDict.Add(utils.GetCommandParameter(par[0]),
+                    variables == null ? par[1] : CheckForVariable(par[1], variables));
             }
             //string command = input.Split(' ')[0];
             return paramDict;

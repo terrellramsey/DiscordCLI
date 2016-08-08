@@ -1,19 +1,23 @@
 ﻿using DScriptEngine.Enums;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DScriptEngine {
-    public class Logger {
+    public class Loggerr {
+        public static EventHandler<OnLoggedMessage> OnLoggedMessage;
+
+
         private static LogOutput output = LogOutput.Console;
         public enum LogOutput {
             Console,
             String
         }
         public static string Log(string message, LogLevel level = LogLevel.Info) {
-            if(output == LogOutput.Console) {
+            if (output == LogOutput.Console) {
                 Console.WriteLine(GetLogFormat(message, level));
             }
             else {
@@ -22,7 +26,7 @@ namespace DScriptEngine {
             return string.Empty;
         }
         internal static string GetLogFormat(string message, LogLevel level) {
-            string toReturn = $"[{DateTime.Now.ToString()}]" + "[{0}]: {1}";
+            var toReturn = $"[{DateTime.Now.ToString(CultureInfo.InvariantCulture)}]" + "[{0}]: {1}";
             switch (level) {
                 case LogLevel.Info:
                     toReturn = string.Format(toReturn, "Info", message);
@@ -38,8 +42,9 @@ namespace DScriptEngine {
         }
 
         internal static void LogResult(DResult result) {
-            if(result.Result == Result.Error) {
+            if (result.Result == Result.Error) {
                 Log(result.Message, LogLevel.Error);
+               // OnLoggedMessage.Emit(null, new OnLoggedMessage(result));
             }
             else {
                 Log(result.Message, LogLevel.Info);

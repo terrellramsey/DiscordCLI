@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace DScriptEngine.Enums {
-   internal enum Result {
+    public enum Result {
         Ok,
         Error,
     }

@@ -9,6 +9,7 @@ namespace DScriptEngine {
     internal class DiscordHandler {
         #region Definers
 
+        
         #endregion
 
         #region Connection
@@ -18,12 +19,16 @@ namespace DScriptEngine {
 
         #region Server
 
-        public DResult UseServer(DCommand cmd) {
+        public void UseServer(DCommand cmd) {
             var result = new DResult();
             if (!cmd.Parameters.ContainsKey(CommandParameter.Name) && !cmd.Parameters.ContainsKey(CommandParameter.Id)) {
                 result.Result = Result.Error;
                 result.Message = string.Format(MessageStore.MissingParameter, "(Name) or (Id)");
-                return result;
+                //Logger.OnLoggedMessage.Emit(this, new OnLoggedMessage(result));
+                Global.logger.Log(NLog.LogLevel.Error, result.Message);
+
+                return;
+             //   return result;
             }
             if (cmd.Parameters.ContainsKey(CommandParameter.Name)) {
                 var name = cmd.Parameters[CommandParameter.Name];
@@ -31,12 +36,18 @@ namespace DScriptEngine {
                 if (server == null) {
                     result.Result = Result.Error;
                     result.Message = string.Format(MessageStore.ServerNotFound, name);
-                    return result;
+                    //Logger.OnLoggedMessage.Emit(this, new OnLoggedMessage(result));
+                    Global.logger.Log(NLog.LogLevel.Error, result.Message);
+                    return;
+                    //    return result;
                 }
                 result.Result = Result.Ok;
                 result.Message = server.Name;
                 Global.activeServer = server;
-                return result;
+                Global.logger.Log(NLog.LogLevel.Info, result.Message);
+                //Logger.OnLoggedMessage.Emit(this, new OnLoggedMessage(result));
+                return;
+                //return result;
             }
             else {
                 var id = cmd.Parameters[CommandParameter.Id];
@@ -44,18 +55,28 @@ namespace DScriptEngine {
                 if (!ulong.TryParse(id, out serverId)) {
                     result.Result = Result.Error;
                     result.Message = string.Format(MessageStore.IdNotValid, id);
-                    return result;
+                    Global.logger.Log(NLog.LogLevel.Error, result.Message);
+                    // Logger.OnLoggedMessage.Emit(this, new OnLoggedMessage(result));
+                    //return result;
+                    return;
                 }
                 var server = Global.client.GetServer(serverId);
                 if (server == null) {
                     result.Result = Result.Error;
                     result.Message = string.Format(MessageStore.ServerNotFound, id);
-                    return result;
+                    Global.logger.Log(NLog.LogLevel.Error, result.Message);
+                    //Logger.OnLoggedMessage.Emit(this, new OnLoggedMessage(result));
+                    return;
+                    //return result;
                 }
                 result.Result = Result.Ok;
                 result.Message = server.Name;
                 Global.activeServer = server;
-                return result;
+                //return result;
+                //Logger.OnLoggedMessage.Emit(this, new OnLoggedMessage(result));
+                Global.logger.Log(NLog.LogLevel.Info, result.Message);
+                return;
+                
             }
         }
 
@@ -106,7 +127,8 @@ namespace DScriptEngine {
                     return result;
                 }
                 image = new FileStream(cmd.Parameters[CommandParameter.Image], FileMode.Open);
-                type = (ImageType)Enum.Parse(typeof(ImageType), Path.GetExtension(path).Substring(1));
+                var convertedExtention = char.ToUpper(Path.GetExtension(path).Substring(1)[0]) + Path.GetExtension(path).Substring(2);
+                type = (ImageType)Enum.Parse(typeof(ImageType), convertedExtention);
             }
             var regionPart = utils.GetRegionFromString(cmd.Parameters[CommandParameter.Region]);
             if (regionPart == ServerRegion.UNKNOWN) {
@@ -122,7 +144,10 @@ namespace DScriptEngine {
                     Global.activeServer = server;
                     result.Result = Result.Ok;
                     result.Message = string.Format(MessageStore.ServerCreated, server.Name, server.Id);
+                    image?.Close();
+                    return;
                 }
+                return;
             });
             image?.Close();
             return result;
